@@ -12,3 +12,4 @@ You also will need to provide these secrets: (you can copy it directly to repl.i
 >     }
 
 Best to fork it on [Repl.it](https://replit.com/@ThePhaseless/Inactivity-check-Discord-Bot)
+*Templates taken from and inspired by Discord.js*
