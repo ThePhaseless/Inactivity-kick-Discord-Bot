@@ -4,8 +4,8 @@ const token = process.env['token'];
 
 
 // Create a new client instance
-const client = new Client({ 
-  intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_PRESENCES", "GUILD_MEMBERS"] 
+const client = new Client({
+  intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_PRESENCES", "GUILD_MEMBERS"]
 });
 
 // When the client is ready, run this code (only once)
@@ -18,42 +18,40 @@ client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return;
   const { commandName } = interaction;
 
-  function prnt(value){
-    console.log(value);
-  }
-
   if (commandName === 'info') {
     await interaction.guild.members.fetch().then(console.log).catch(console.error);
+    interaction.reply({ content: 'Check bot console', ephemeral: true });
   }
 
   if (commandName === 'autokick') {
-    if (!interaction.user.id == "282188744696659969") {
-      await interaction.reply('chciałbyś')
+    //Check if user is owner
+    if (interaction.user.id != interaction.guild.ownerId) {
+      interaction.reply({ content: 'Nice try...', ephemeral: true });
       return
     }
 
-    let channel = interaction.channel;
-    channel.messages.fetch()
+    let whitelist = [];                             //create list of exluded users
+    let channel = interaction.channel;              //fetch channel that command is used in
+    channel.messages.fetch()                        //get all messages in channel
       .then(messages => {
-        for (let msg of messages)
-          for (let x of msg)
-            if (x.author)
-              if (!x.author.bot) {
-                whitelist.push(x.author.id);
-                client.channels.cache.get(channel.id).send(x.author.username);
-              }
+        for (let msg of messages) {                 //fill whitelist with ids
+          let authorid = msg[1].author.id;
+          if (!whitelist.includes(authorid))        //skip existing users
+          {
+            whitelist.push(authorid);
+            console.log(authorid);
+          }
+        }
+      })
+      .finally(interaction.reply({ content: 'Done', ephemeral: true }));  //reply in discord when done
+
+    interaction.guild.members.fetch().then(members => {
+      for (let member of members) {
+        if (!whitelist.includes(member[0]))
+          interaction.channel.send('Kicked: ' + member[1].nickname);
+          console.log('Kicked: ' + member[1].nickname);
       }
-      ).catch(console.error);
-    const members = interaction.guild.members.fetch().then(members => console.log(members))
-    while (true)
-      console.log(members);
-
-
-    //tbd: https://www.w3schools.com/jsref/jsref_includes_array.asp
-
-
-
-    interaction.reply('Zostają:');
+    })
   }
 });
 

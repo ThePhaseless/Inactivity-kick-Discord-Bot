@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Client } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 
@@ -7,8 +8,8 @@ const guildId = process.env['guildId']
 const clientId = process.env['clientId']
 
 const commands = [
-	new SlashCommandBuilder().setName('autokick').setDescription('Replies with user info!'),
-  new SlashCommandBuilder().setName('info').setDescription('Replies with user info!'),
+	new SlashCommandBuilder().setName('autokick').setDescription("Kicks users that didn't replied in this chat"),
+  new SlashCommandBuilder().setName('members').setDescription('Logs to console all users that typed in this chat'),
 ]
 	.map(command => command.toJSON());
 
