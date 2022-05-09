@@ -1,5 +1,5 @@
 
-# Inactivity Check Discord Bot
+# Inactivity Kick Discord Bot
 Here is simple bot build with Discord.js v13 and Node, that will list or bans users that didn't send anything in channel that the command is used. Good for keeping active users and kicking the idling ones.
 
 What exacly it does?
