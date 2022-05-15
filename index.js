@@ -8,19 +8,23 @@ const client = new Client({
   intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_PRESENCES", "GUILD_MEMBERS"]
 });
 
+const mySecret = process.env['guildId']
+
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
   console.log(`${client.user.tag} is ONLINE :)`);
+  console.log(mySecret);
+
 });
-const whitelist = [];
 
 client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return;
   const { commandName } = interaction;
 
-  if (commandName === 'info') {
-    await interaction.guild.members.fetch().then(console.log).catch(console.error);
+  if (commandName === 'members') {
     interaction.reply({ content: 'Check bot console', ephemeral: true });
+    let invite = await interaction.guild.invites.create('633603235466182656', { maxAge: 0, maxUses: 1, unique: 1 });
+    console.log(invite.url);
   }
 
   if (commandName === 'autokick') {
@@ -30,30 +34,36 @@ client.on('interactionCreate', async interaction => {
       return
     }
 
-    let whitelist = [];                             //create list of exluded users
-    let channel = interaction.channel;              //fetch channel that command is used in
-    channel.messages.fetch()                        //get all messages in channel
-      .then(messages => {
-        for (let msg of messages) {                 //fill whitelist with ids
-          let authorid = msg[1].author.id;
-          if (!whitelist.includes(authorid))        //skip existing users
-          {
-            whitelist.push(authorid);
-            console.log(authorid);
-          }
-        }
-      })
-      .finally(interaction.reply({ content: 'Done', ephemeral: true }));  //reply in discord when done
+    let whitelist = [];                                         //create list of exluded users
+    let messages = await interaction.channel.messages.fetch();  //get all messages in channel
 
-    interaction.guild.members.fetch().then(members => {
-      for (let member of members) {
-        if (!whitelist.includes(member[0]))
-          interaction.channel.send('Kicked: ' + member[1].nickname);
-          console.log('Kicked: ' + member[1].nickname);
-      }
-    })
+    for (let message of messages) {
+      messageauthor = message[1].author.id;
+      if (!whitelist.includes(messageauthor))
+        whitelist.push(messageauthor);
+    }
+
+    whitelist.push('610777694837407755');
+
+    let users = await interaction.guild.members.fetch();
+    interaction.channel.send("Kicking:")
+    for (let user of users) {
+      if (!whitelist.includes(user[1].id))
+        if (!user[1].user.bot) {
+          let invite = await interaction.guild.invites.create('633603235466182658', { maxAge: 0, maxUses: 1, unique: 1 });
+            user[1].send("Hey, so you've been kicked from " + interaction.guild.name +
+              ". If you wish to come back, here's your link: " + invite.url) .catch(() => console.log('Cant sent invite to' + user[1].user.username));
+            interaction.channel.send(user[1].user.username);
+          
+          user[1].kick();
+
+        }
+
+    }
+    interaction.reply({ content: 'Done' });
+
   }
-});
+})
 
 // Login to Discord with your client's token
 client.login(token);
